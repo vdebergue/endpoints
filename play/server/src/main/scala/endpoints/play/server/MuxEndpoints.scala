@@ -10,31 +10,31 @@ trait MuxEndpoints extends algebra.MuxEndpoints with Endpoints {
 
   import playComponents.executionContext
 
-  class MuxEndpoint[Req <: MuxRequest, Resp, Transport](
-    request: Request[Transport],
-    response: Response[Transport]
+  class MuxEndpoint[Req <: MuxRequest, Resp, ReqTransport, RespTransport](
+    request: Request[ReqTransport],
+    response: Response[RespTransport]
   ) {
     def implementedBy(
       handler: MuxHandler[Req, Resp]
     )(implicit
-      decoder: Decoder[Transport, Req],
-      encoder: Encoder[Resp, Transport]
+      decoder: Decoder[ReqTransport, Req],
+      encoder: Encoder[Resp, RespTransport]
     ): ToPlayHandler =
       toPlayHandler(req => Future.successful(handler(req)))
 
     def implementedByAsync(
       handler: MuxHandlerAsync[Req, Resp]
     )(implicit
-      decoder: Decoder[Transport, Req],
-      encoder: Encoder[Resp, Transport]
+      decoder: Decoder[ReqTransport, Req],
+      encoder: Encoder[Resp, RespTransport]
     ): ToPlayHandler =
       toPlayHandler(req => handler(req))
 
     def toPlayHandler(
       handler: Req { type Response = Resp } => Future[Resp]
     )(implicit
-      decoder: Decoder[Transport, Req],
-      encoder: Encoder[Resp, Transport]
+      decoder: Decoder[ReqTransport, Req],
+      encoder: Encoder[Resp, RespTransport]
     ): ToPlayHandler =
       header =>
         request.decode(header).map { bodyParser =>
@@ -45,11 +45,11 @@ trait MuxEndpoints extends algebra.MuxEndpoints with Endpoints {
         }
   }
 
-  def muxEndpoint[Req <: MuxRequest, Resp, Transport](
-    request: Request[Transport],
-    response: Transport => Result
-  ): MuxEndpoint[Req, Resp, Transport] =
-    new MuxEndpoint[Req, Resp, Transport](request, response)
+  def muxEndpoint[Req <: MuxRequest, Resp, ReqTransport, RespTransport](
+    request: Request[ReqTransport],
+    response: RespTransport => Result
+  ): MuxEndpoint[Req, Resp, ReqTransport, RespTransport] =
+    new MuxEndpoint[Req, Resp, ReqTransport, RespTransport](request, response)
 
 }
 

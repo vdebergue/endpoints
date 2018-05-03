@@ -13,7 +13,7 @@ trait MuxEndpoints extends Endpoints {
   /**
     * Information carried by a multiplexed HTTP endpoint.
     */
-  type MuxEndpoint[Req <: MuxRequest, Resp, Transport]
+  type MuxEndpoint[Req <: MuxRequest, Resp, ReqTransport, RespTransport]
 
   /**
     * Multiplexed HTTP endpoint.
@@ -27,11 +27,12 @@ trait MuxEndpoints extends Endpoints {
     * @param response The response
     * @tparam Req The base type of possible requests
     * @tparam Resp The base type of possible responses
-    * @tparam Transport The data type used to transport the requests and responses
+    * @tparam ReqTransport The data type used to transport the requests
+    * @tparam RespTransport The data type used to transport the responses
     */
-  def muxEndpoint[Req <: MuxRequest, Resp, Transport](
-    request: Request[Transport],
-    response: Response[Transport]
-  ): MuxEndpoint[Req, Resp, Transport]
+  def muxEndpoint[Req <: MuxRequest, Resp, ReqTransport, RespTransport](
+    request: Request[ReqTransport],
+    response: Response[RespTransport]
+  ): MuxEndpoint[Req, Resp, ReqTransport, RespTransport]
 
 }

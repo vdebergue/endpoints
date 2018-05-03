@@ -6,15 +6,15 @@ import faithful.{Future, Promise}
 
 trait MuxEndpoints extends xhr.MuxEndpoints with Endpoints {
 
-  class MuxEndpoint[Req <: MuxRequest, Resp, Transport](
-    request: Request[Transport],
-    response: Response[Transport]
+  class MuxEndpoint[Req <: MuxRequest, Resp, ReqTransport, RespTransport](
+    request: Request[ReqTransport],
+    response: Response[RespTransport]
   ) {
     def apply(
       req: Req
     )(implicit
-      encoder: Encoder[Req, Transport],
-      decoder: Decoder[Transport, Resp]
+      encoder: Encoder[Req, ReqTransport],
+      decoder: Decoder[RespTransport, Resp]
     ): Future[req.Response] = {
       val promise = new Promise[req.Response]()
       muxPerformXhr(request, response, req)(
@@ -25,10 +25,10 @@ trait MuxEndpoints extends xhr.MuxEndpoints with Endpoints {
     }
   }
 
-  def muxEndpoint[Req <: MuxRequest, Resp, Transport](
-    request: Request[Transport],
-    response: Response[Transport]
-  ): MuxEndpoint[Req, Resp, Transport] =
-    new MuxEndpoint[Req, Resp, Transport](request, response)
+  def muxEndpoint[Req <: MuxRequest, Resp, ReqTransport, RespTransport](
+    request: Request[ReqTransport],
+    response: Response[RespTransport]
+  ): MuxEndpoint[Req, Resp, ReqTransport, RespTransport] =
+    new MuxEndpoint[Req, Resp, ReqTransport, RespTransport](request, response)
 
 }

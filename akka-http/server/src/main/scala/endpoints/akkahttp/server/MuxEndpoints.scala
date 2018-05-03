@@ -13,21 +13,21 @@ import scala.util.{Failure, Success}
   */
 trait MuxEndpoints extends algebra.MuxEndpoints with Endpoints {
 
-  class MuxEndpoint[Req <: MuxRequest, Resp, Transport](request: Request[Transport], response: Response[Transport]) {
+  class MuxEndpoint[Req <: MuxRequest, Resp, ReqTransport, RespTransport](request: Request[ReqTransport], response: Response[RespTransport]) {
 
     def implementedBy(handler: MuxHandler[Req, Resp])(implicit
-      decoder: Decoder[Transport, Req],
-      encoder: Encoder[Resp, Transport]
+      decoder: Decoder[ReqTransport, Req],
+      encoder: Encoder[Resp, RespTransport]
     ): Route = handleAsync(req => Future.successful(handler(req)))
 
     def implementedByAsync(handler: MuxHandlerAsync[Req, Resp])(implicit
-      decoder: Decoder[Transport, Req],
-      encoder: Encoder[Resp, Transport]
+      decoder: Decoder[ReqTransport, Req],
+      encoder: Encoder[Resp, RespTransport]
     ): Route = handleAsync(req => handler(req))
 
     private def handleAsync(handler: Req {type Response = Resp} => Future[Resp])(implicit
-      decoder: Decoder[Transport, Req],
-      encoder: Encoder[Resp, Transport]
+      decoder: Decoder[ReqTransport, Req],
+      encoder: Encoder[Resp, RespTransport]
     ): Route =
       request { request =>
         Directives.onComplete(handler(decoder.decode(request).right.get /* TODO Handle failure */ .asInstanceOf[Req {type Response = Resp}])) {
@@ -38,11 +38,11 @@ trait MuxEndpoints extends algebra.MuxEndpoints with Endpoints {
 
   }
 
-  def muxEndpoint[Req <: MuxRequest, Resp, Transport](
-    request: Request[Transport],
-    response: Response[Transport]
-  ): MuxEndpoint[Req, Resp, Transport] =
-    new MuxEndpoint[Req, Resp, Transport](request, response)
+  def muxEndpoint[Req <: MuxRequest, Resp, ReqTransport, RespTransport](
+    request: Request[ReqTransport],
+    response: Response[RespTransport]
+  ): MuxEndpoint[Req, Resp, ReqTransport, RespTransport] =
+    new MuxEndpoint[Req, Resp, ReqTransport, RespTransport](request, response)
 
 }
 

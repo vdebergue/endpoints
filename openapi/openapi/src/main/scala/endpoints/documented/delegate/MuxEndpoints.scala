@@ -6,11 +6,11 @@ trait MuxEndpoints extends endpoints.documented.algebra.MuxEndpoints with Endpoi
 
   val delegate: endpoints.algebra.MuxEndpoints
 
-  type MuxEndpoint[Req <: MuxRequest, Resp, Transport] = delegate.MuxEndpoint[Req, Resp, Transport]
+  type MuxEndpoint[Req <: MuxRequest, Resp, ReqTransport, RespTransport] = delegate.MuxEndpoint[Req, Resp, ReqTransport, RespTransport]
 
-  def muxEndpoint[Req <: MuxRequest, Resp, Transport](
-    request: Request[Transport],
-    response: Response[Transport]
-  ): MuxEndpoint[Req, Resp, Transport] = delegate.muxEndpoint(request, response)
+  def muxEndpoint[Req <: MuxRequest, Resp, ReqTransport, RespTransport](
+    request: Request[ReqTransport],
+    response: Response[RespTransport]
+  ): MuxEndpoint[Req, Resp,  ReqTransport, RespTransport] = delegate.muxEndpoint(request, response)
 
 }

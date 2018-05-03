@@ -8,15 +8,15 @@ import scala.concurrent.Future
 trait MuxEndpoints extends algebra.MuxEndpoints { self: Endpoints =>
 
 
-  class MuxEndpoint[Req <: algebra.MuxRequest, Resp, Transport](
-    request: Request[Transport],
-    response: Response[Transport]
+  class MuxEndpoint[Req <: algebra.MuxRequest, Resp, ReqTransport, RespTransport](
+    request: Request[ReqTransport],
+    response: Response[RespTransport]
   ) {
     def apply(
       req: Req
     )(implicit
-      encoder: Encoder[Req, Transport],
-      decoder: Decoder[Transport, Resp]
+      encoder: Encoder[Req, ReqTransport],
+      decoder: Decoder[RespTransport, Resp]
     ): Future[req.Response] =
       request(encoder.encode(req)).flatMap { resp =>
         response(resp).flatMap { t =>
@@ -27,10 +27,10 @@ trait MuxEndpoints extends algebra.MuxEndpoints { self: Endpoints =>
       }
   }
 
-  def muxEndpoint[Req <: MuxRequest, Resp, Transport](
-    request: Request[Transport],
-    response: Response[Transport]
-  ): MuxEndpoint[Req, Resp, Transport] =
-    new MuxEndpoint[Req, Resp, Transport](request, response)
+  def muxEndpoint[Req <: MuxRequest, Resp, ReqTransport, RespTransport](
+    request: Request[ReqTransport],
+    response: Response[RespTransport]
+  ): MuxEndpoint[Req, Resp, ReqTransport, RespTransport] =
+    new MuxEndpoint[Req, Resp, ReqTransport, RespTransport](request, response)
 
 }
